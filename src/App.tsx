@@ -46,13 +46,13 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  const handleCompleteProfile = async (data: { language: string; age: number; school: string; routineDescription: string }) => {
+  const handleCompleteProfile = async (data: { displayName: string; language: string; age: number; school: string; routineDescription: string }) => {
     if (!user) return;
     const userRef = doc(db, 'users', user.uid);
     const newStats: UserStats = {
       uid: user.uid,
-      displayName: user.displayName || 'Studente',
-      photoURL: user.photoURL || '',
+      displayName: data.displayName || user.displayName || 'Studente',
+      photoURL: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
       bio: "Sfrutto il mio potenziale al 100%.",
       language: data.language,
       age: data.age,

@@ -65,6 +65,8 @@ export default function ProfileDashboard({ onClose }: ProfileDashboardProps) {
   
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [newBio, setNewBio] = useState('');
+  const [newDisplayName, setNewDisplayName] = useState('');
+  const [isEditingName, setIsEditingName] = useState(false);
   const [newPhotoURL, setNewPhotoURL] = useState('');
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
 
@@ -87,6 +89,7 @@ export default function ProfileDashboard({ onClose }: ProfileDashboardProps) {
           const data = docSnap.data() as UserStats;
           setStats(data);
           setNewBio(data.bio || '');
+          setNewDisplayName(data.displayName || '');
           setNewPhotoURL(data.photoURL || '');
         }
       }
@@ -99,10 +102,12 @@ export default function ProfileDashboard({ onClose }: ProfileDashboardProps) {
     const userRef = doc(db, 'users', auth.currentUser.uid);
     await updateDoc(userRef, {
       bio: newBio,
+      displayName: newDisplayName,
       photoURL: newPhotoURL
     });
-    setStats(prev => prev ? { ...prev, bio: newBio, photoURL: newPhotoURL } : null);
+    setStats(prev => prev ? { ...prev, bio: newBio, displayName: newDisplayName, photoURL: newPhotoURL } : null);
     setIsEditingBio(false);
+    setIsEditingName(false);
     setIsEditingPhoto(false);
   };
 
@@ -136,7 +141,7 @@ export default function ProfileDashboard({ onClose }: ProfileDashboardProps) {
             </div>
           </div>
           <div>
-            <h2 className="font-black uppercase tracking-tight text-red-900">{auth.currentUser?.displayName}</h2>
+            <h2 className="font-black uppercase tracking-tight text-red-900">{stats?.displayName || auth.currentUser?.displayName}</h2>
             <p className="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Sei on fire! 🔥</p>
           </div>
         </div>
@@ -204,8 +209,32 @@ export default function ProfileDashboard({ onClose }: ProfileDashboardProps) {
                         <Camera size={16} />
                       </button>
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-black text-red-900 uppercase tracking-tight">{auth.currentUser?.displayName}</h3>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        {isEditingName ? (
+                          <div className="flex gap-2 w-full">
+                            <input
+                              type="text"
+                              value={newDisplayName}
+                              onChange={(e) => setNewDisplayName(e.target.value)}
+                              className="flex-1 p-2 rounded-xl border border-red-100 text-sm font-black uppercase tracking-tight text-red-900 focus:outline-none focus:ring-2 focus:ring-red-600"
+                            />
+                            <button onClick={handleUpdateProfile} className="bg-red-600 text-white p-2 rounded-xl">
+                              <Save size={16} />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <h3 className="text-2xl font-black text-red-900 uppercase tracking-tight">{stats?.displayName}</h3>
+                            <button 
+                              onClick={() => setIsEditingName(true)}
+                              className="p-1 hover:bg-red-50 rounded-lg transition-colors text-red-300 hover:text-red-600"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                          </>
+                        )}
+                      </div>
                       <p className="text-xs font-bold text-red-900/40 uppercase tracking-widest">
                         {stats?.age} anni • {stats?.school} • {stats?.language}
                       </p>

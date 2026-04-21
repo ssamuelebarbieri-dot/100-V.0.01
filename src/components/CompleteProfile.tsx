@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Target, Sparkles, Globe, GraduationCap, User, ChevronRight } from 'lucide-react';
 import { BrainIcon } from './BrainIcon';
+import { auth } from '../lib/firebase';
 
 interface CompleteProfileProps {
-  onComplete: (data: { language: string; age: number; school: string; routineDescription: string }) => void;
+  onComplete: (data: { displayName: string; language: string; age: number; school: string; routineDescription: string }) => void;
 }
 
 export default function CompleteProfile({ onComplete }: CompleteProfileProps) {
   const [step, setStep] = useState(1);
+  const [displayName, setDisplayName] = useState(auth.currentUser?.displayName || '');
   const [language, setLanguage] = useState('italiano');
   const [age, setAge] = useState(16);
   const [school, setSchool] = useState('');
@@ -16,7 +18,7 @@ export default function CompleteProfile({ onComplete }: CompleteProfileProps) {
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    if (school.trim()) {
+    if (school.trim() && displayName.trim()) {
       setStep(2);
     }
   };
@@ -24,7 +26,7 @@ export default function CompleteProfile({ onComplete }: CompleteProfileProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (routineDescription.trim()) {
-      onComplete({ language, age, school, routineDescription });
+      onComplete({ displayName, language, age, school, routineDescription });
     }
   };
 
@@ -55,6 +57,20 @@ export default function CompleteProfile({ onComplete }: CompleteProfileProps) {
             </p>
 
             <form onSubmit={handleNext} className="space-y-6">
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-bold text-red-900/40 uppercase tracking-widest mb-2">
+                  <User size={12} className="text-red-600" /> Nome Visualizzato
+                </label>
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Il tuo nome nell'app"
+                  required
+                  className="w-full p-4 rounded-2xl border border-red-100 focus:ring-2 focus:ring-red-600 outline-none transition-all"
+                />
+              </div>
+
               <div>
                 <label className="flex items-center gap-2 text-[10px] font-bold text-red-900/40 uppercase tracking-widest mb-2">
                   <BrainIcon size={12} className="text-red-600" /> Lingua Preferita
